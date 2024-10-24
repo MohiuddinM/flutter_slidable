@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slidable/src/auto_close_behavior.dart';
 import 'package:flutter_slidable/src/notifications_old.dart';
 
@@ -28,8 +29,14 @@ class Slidable extends StatefulWidget {
     this.direction = Axis.horizontal,
     this.dragStartBehavior = DragStartBehavior.down,
     this.useTextDirection = true,
+    this.backgroundColor = Colors.transparent,
+    this.borderRadius,
     required this.child,
   });
+
+  final Color backgroundColor;
+  
+  final BorderRadius? borderRadius;
 
   /// The Slidable widget controller.
   final SlidableController? controller;
@@ -253,21 +260,29 @@ class _SlidableState extends State<Slidable>
       ),
     );
 
-    content = Stack(
-      children: <Widget>[
-        if (actionPane != null)
-          Positioned.fill(
-            child: ClipRect(
-              clipper: _SlidableClipper(
-                axis: widget.direction,
-                controller: controller,
+    content = Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: widget.backgroundColor,
+        borderRadius: widget.borderRadius,
+      ),
+      child: Stack(
+        clipBehavior: Clip.antiAlias,
+        children: <Widget>[
+          if (actionPane != null)
+            Positioned.fill(
+              child: ClipRect(
+                clipper: _SlidableClipper(
+                  axis: widget.direction,
+                  controller: controller,
+                ),
+                child: actionPane,
               ),
-              child: actionPane,
             ),
-          ),
-        content,
-      ],
-    );
+          content,
+
+        ],
+      ),);
 
     return SlidableGestureDetector(
       enabled: widget.enabled,
@@ -287,7 +302,7 @@ class _SlidableState extends State<Slidable>
               alignment: actionPaneAlignment,
               direction: widget.direction,
               isStartActionPane:
-                  controller.actionPaneType.value == ActionPaneType.start,
+              controller.actionPaneType.value == ActionPaneType.start,
               child: _SlidableControllerScope(
                 controller: controller,
                 child: content,
